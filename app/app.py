@@ -70,7 +70,7 @@ def transform_image():
         seeds, generators = make_generators(IMAGE_COUNT)
         data = request.json
         prompt = data['inputText']
-        prompt
+        # prompt
         
         images = pipe(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_end=HIGH_NOISE_FRAC, num_images_per_prompt=IMAGE_COUNT, output_type="latent", negative_prompt=NEGATIVE_PROMPT).images
         updated_images = []
