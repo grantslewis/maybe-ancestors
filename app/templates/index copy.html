@@ -138,50 +138,45 @@ function handleImageUpload(event) {
 //     }
 // });
     
-$('#submit').click(function() {
-    console.log("Submit button clicked!"); // Log statement
-    
-    const intensityLevel = $("#intensitySlider").val();
-    const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
-    const dataURL = canvas.toDataURL("image/png");
-    const base64Image = dataURL.split(',')[1];  // Only the Base64 content
-
-    $.ajax({
-        type: 'POST',
-        url: '/transform',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            imageBase64: base64Image,
-            intensityLevel: intensityLevel,  // Include the intensity level here
-            inputText: inputTextValue  // Include the value from input_text here
-        }),
-        success: function(response) {
-            // Assuming the response looks like:
-            // {
-            //   result_image_1: "...",
-            //   result_image_2: "...",
-            //   ...
-            // }
-
-            // Loop through each key in the response
-            for (let key in response) {
-                if (response.hasOwnProperty(key) && key.startsWith("result_image_")) {
-                    // Extract the image number from the key
-                    const imageNum = key.split("_")[2];
-
-                    // Construct the image source string
-                    const img_str = 'data:image/png;base64,' + response[key];
-
-                    // Update the respective image element
-                    $("#result-image-" + imageNum).attr("src", img_str).show();
+    function sendPostRequest(imageBase64, intensityLevel, inputTextValue) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                type: 'POST',
+                url: '/transform',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    imageBase64: imageBase64,
+                    intensityLevel: intensityLevel,
+                    inputText: inputTextValue
+                }),
+                success: function(response) {
+                    resolve(response.result_image);
+                },
+                error: function(error) {
+                    reject(error);
                 }
+            });
+        });
+    }
+
+    $('#submit').click(async function() {
+        console.log("Submit button clicked!");
+
+        const intensityLevel = $("#intensitySlider").val();
+        const inputTextValue = $("#input_text").val();
+        const dataURL = canvas.toDataURL("image/png");
+        const base64Image = dataURL.split(',')[1];
+
+        for (let i = 1; i <= 4; i++) {
+            try {
+                const resultImage = await sendPostRequest(base64Image, intensityLevel, inputTextValue);
+                const img_str = 'data:image/png;base64,' + resultImage;
+                $(`#result-image-${i}`).attr("src", img_str).show();
+            } catch (error) {
+                console.log(`Error in request #${i}:`, error);
             }
-        },
-        error: function(error) {
-            console.log(error);
         }
     });
-});
 
 
 
