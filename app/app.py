@@ -74,7 +74,7 @@ def transform_image():
         
         images = pipe(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_end=HIGH_NOISE_FRAC, num_images_per_prompt=IMAGE_COUNT, output_type="latent", negative_prompt=NEGATIVE_PROMPT).images
         updated_images = []
-        ret_json = dict()
+        ret_info = dict()
         for i, image in enumerate(images):
                 # image.save("result_image.jpg")
             image = refiner(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_start=HIGH_NOISE_FRAC, image=image, negative_prompt=NEGATIVE_PROMPT).images[0]
@@ -83,14 +83,14 @@ def transform_image():
             image.save(f"{image_name}.jpg")
             
             buffered = io.BytesIO()
-            # result_image.save(buffered, format="PNG")
-            # img_str = base64.b64encode(buffered.getvalue())
+            image.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue())
         
         # return jsonify({'result_image': img_str.decode('utf-8')})
             
             
-            ret_json[f"{image_name}"] = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        return jsonify(ret_json)
+            ret_info[f"{image_name}"] = img_str.decode('utf-8')
+        return jsonify({'result_images': ret_info})
         
         
         
@@ -111,13 +111,13 @@ def transform_image():
         #     prompt = avatar_generation.caption_image(cap_processor, cap_model, image, text=caption_text, device=DEFVICE)
         # print(prompt)
         # result_image = avatar_generation.generate_avatar(pipe, prompt, controlnet_conditioning_scale, image, negative_prompt=negative_prompt)
-        # result_image.save("result_image.jpg")  # You mentioned you don't want to save the new image
+        result_image.save("result_image.jpg")  # You mentioned you don't want to save the new image
 
-        # buffered = io.BytesIO()
-        # result_image.save(buffered, format="PNG")
-        # img_str = base64.b64encode(buffered.getvalue())
+        buffered = io.BytesIO()
+        result_image.save(buffered, format="PNG")
+        img_str = base64.b64encode(buffered.getvalue())
         
-        # return jsonify({'result_image': img_str.decode('utf-8')})
+        return jsonify({'result_image': img_str.decode('utf-8')})
 
     except Exception as e:
         print(f'error: {str(e)}')
