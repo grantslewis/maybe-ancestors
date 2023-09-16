@@ -27,8 +27,10 @@ IMAGE_COUNT = 4
 INITIAL_STEPS = 10
 HIGH_NOISE_FRAC = 0.7
 
-PRE_PROMPT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a "
-NEGATIVE_PROMPT = "soft line, lowres, text, sketch, bad hands, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast"
+PROMPT_IMPROVMENT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range,"
+PROMPT_BASE = "A headshot of a"
+
+NEGATIVE_PROMPT = "soft line, lowres, text, sketch, bad hands, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast, NSFW"
 
 
 
@@ -69,8 +71,61 @@ def transform_image():
     try:
         seeds, generators = make_generators(IMAGE_COUNT)
         data = request.json
-        prompt = data['inputText']
-        prompt = PRE_PROMPT + prompt
+        print(data)
+        # prompt = data['inputText']
+        prompt = PROMPT_BASE #+ prompt
+        if "culture" in data:
+            prompt += f" {data['culture']}"
+        
+        if "gender" in data:
+            prompt += f" {data['gender']}"
+        else:
+            prompt += " person"
+        
+        attributes = []
+        if "eyeColor" in data:
+            attributes.append(f"{data['eyeColor']} eyes")
+            
+        hair = []
+        if "hairStyle" in data:
+            hair.append(data['hairStyle'])
+        if "hairColor" in data:
+            hair.append(data['hairColor'])
+        if len(hair) > 0:
+            hair_parts = " ".join(hair)
+            attributes.append(f"{hair_parts} hair")
+        if "skinTone" in data:
+            attributes.append(f"{data['skinTone']} skin")
+        
+        
+        
+        attributes_combined = ""
+        if len(attributes) > 2:
+            attributes_combined = ", ".join(attributes[:-1]) + ", and " + attributes[-1]
+    # If the list has 3 or fewer items, just join them with spaces.
+        elif len(attributes) == 2:
+            attributes_combined = f"{attributes[0]} and {attributes[1]}"
+        elif len(attributes) == 1:
+            attributes_combined = attributes[0]
+            # return ' '.join(attributes)
+        if len(attributes) > 0:
+            attributes_combined = f" with {attributes_combined}"
+        prompt += attributes_combined
+        
+        if len(data["location"]) > 0:
+            prompt += f" living {data['location']}"
+        if len(data["occupation"]) > 0:
+            prompt += f" working as a {data['occupation']}"
+        if len(data["dateOrDescription"]) > 0:
+            prompt += f" living during the {data['dateOrDescription']}"
+        prompt += ". "
+        prompt += data["inputText"]
+        
+        prompt_base = prompt
+        prompt = f"{PROMPT_IMPROVMENT} {prompt}"
+        
+        print(prompt)
+        
         # prompt
         
         images = pipe(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_end=HIGH_NOISE_FRAC, num_images_per_prompt=IMAGE_COUNT, output_type="latent", negative_prompt=NEGATIVE_PROMPT).images
@@ -88,7 +143,7 @@ def transform_image():
             img_str = base64.b64encode(buffered.getvalue()) 
             
             ret_info[f"{image_name}"] = img_str.decode('utf-8')
-        return jsonify({'result_images': ret_info})
+        return jsonify({'result_images': ret_info, 'prompt': prompt_base})
         
         
         
@@ -109,13 +164,13 @@ def transform_image():
         #     prompt = avatar_generation.caption_image(cap_processor, cap_model, image, text=caption_text, device=DEFVICE)
         # print(prompt)
         # result_image = avatar_generation.generate_avatar(pipe, prompt, controlnet_conditioning_scale, image, negative_prompt=negative_prompt)
-        result_image.save("result_image.jpg")  # You mentioned you don't want to save the new image
+#         result_image.save("result_image.jpg")  # You mentioned you don't want to save the new image
 
-        buffered = io.BytesIO()
-        result_image.save(buffered, format="PNG")
-        img_str = base64.b64encode(buffered.getvalue())
+#         buffered = io.BytesIO()
+#         result_image.save(buffered, format="PNG")
+#         img_str = base64.b64encode(buffered.getvalue())
         
-        return jsonify({'result_image': img_str.decode('utf-8')})
+#         return jsonify({'result_image': img_str.decode('utf-8')})
 
     except Exception as e:
         print(f'error: {str(e)}')

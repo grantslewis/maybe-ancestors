@@ -38,8 +38,10 @@
     <div class="main-container">
         <!-- Left Section - Drawing Area -->
         <div class="left-section">
-            <h1 id="mainHeader">Draw an Image</h1>
-            <form action="/submit" method="post"> <!-- You can adjust the action to your desired endpoint -->
+            <h1 id="mainHeader">What Sort of Person Do You Want to Create?</h1>
+            <input type="button" id="resetForm" value="Reset Input Information">
+            <form action=""> <!-- You can adjust the action to your desired endpoint -->
+<!--                 action="/submit" method="post" -->
         
                 <!-- Gender Section -->
                 <fieldset>
@@ -66,6 +68,14 @@
                     <label><input type="radio" name="hairColor" value="brown"> Brown</label>
                     <!-- Add more hair colors if needed -->
                 </fieldset>
+                
+                <fieldset>
+                    <legend>Hair Style</legend>
+                    <label><input type="radio" name="hairStyle" value="curly"> Curly</label>
+                    <label><input type="radio" name="hairStyle" value="straight"> Straight</label>
+                    <label><input type="radio" name="hairStyle" value="braided"> Braided</label>
+                    <!-- Add more hair colors if needed -->
+                </fieldset>
         
                 <!-- Skin Tone Section -->
                 <fieldset>
@@ -75,37 +85,48 @@
                     <label><input type="radio" name="skinTone" value="dark"> Dark</label>
                     <!-- Add more skin tones if needed -->
                 </fieldset>
-        
+                
+                <label for="culture">Culture or Nationality:</label>
+                <input type="text" id="culture" name="culture" placeholder="Enter a culture or nationality">
+                <br>
                 <!-- Location Input -->
                 <label for="location">Location:</label>
                 <input type="text" id="location" name="location" placeholder="Enter a location">
-        
+                <br>
+                <label for="occupation">Occupation:</label>
+                <input type="text" id="occupation" name="occupation" placeholder="Enter an occupation">
+                <br>
                 <!-- Date or Description Input -->
                 <label for="dateOrDescription">Date or Description of Time Period:</label>
                 <input type="text" id="dateOrDescription" name="dateOrDescription" placeholder="Enter a date or description">
         
                 <!-- Submit Button -->
-                <input type="submit" value="Submit">
+<!--                 <button type="submit">Submit</button> -->
             </form>
             <div>
+                <label>Extra Info to Include:</label>
                 <textarea id="input_text" rows="5" cols="47"></textarea>
             </div>
             <!-- Transform Controls -->
-            <div id="transformMode">
+<!--             <div id="transformMode">
                 <label for="intensitySlider">Faithfulness to Source Image: </label>
-                <input type="range" id="intensitySlider" name="intensityLevel" min="0" max="1" step="0.01" value="0.3">
-                <button id="submit">Transform Image</button>
-            </div>
+                <input type="range" id="intensitySlider" name="intensityLevel" min="0" max="1" step="0.01" value="0.3"> -->
+            <button id="submit">Transform Image</button>
+<!--         </div> -->
         </div>
         <!-- Right Section - Result Area -->
-        <div class="right-section">
-            <h1 id="mainHeader">Resulting Image</h1>
+        <div class="right-section" id="right-section" hidden>
+            <h1 id="mainHeader">Resulting Images</h1>
             <div class="result-images grid-container">
                 <!-- Placeholder Images -->
                 <img id="result-image-1" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
                 <img id="result-image-2" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
                 <img id="result-image-3" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
                 <img id="result-image-4" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
+            </div>
+            <div id="prompt-info" hidden>
+                <h4>Prompt:</h4>
+                <text id="prompt-result">Test Text</h5>
             </div>
         </div>
     </div>
@@ -118,7 +139,16 @@
 
             const intensityLevel = $("#intensitySlider").val();
             const inputTextValue = $("#input_text").val();
-
+            
+            const genderValue = $('input[name="gender"]:checked').val();
+            const eyeColorValue = $('input[name="eyeColor"]:checked').val();
+            const hairColorValue = $('input[name="hairColor"]:checked').val();
+            const hairStyleValue = $('input[name="hairStyle"]:checked').val();
+            const skinToneValue = $('input[name="skinTone"]:checked').val();
+            const cultureValue = $('#culture').val();
+            const locationValue = $('#location').val();
+            const occupationValue = $('#occupation').val();
+            const dateOrDescriptionValue = $('#dateOrDescription').val();
 
 
             $.ajax({
@@ -126,47 +156,95 @@
                 url: '/transform',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    intensityLevel: intensityLevel,
-                    inputText: inputTextValue
+                    // intensityLevel: intensityLevel,
+                    inputText: inputTextValue,
+                    gender: genderValue,
+                    eyeColor: eyeColorValue,
+                    hairColor: hairColorValue,
+                    hairStyle: hairStyleValue,
+                    skinTone: skinToneValue,
+                    culture: cultureValue,
+                    location: locationValue,
+                    occupation: occupationValue,
+                    dateOrDescription: dateOrDescriptionValue
                 }),
                 success: function(response) {
+                    console.log('Recieved Response')
+                    console.log(response)
                     for(let key in response.result_images) {
                         const img_str = 'data:image/png;base64,' + response.result_images[key];
                         const idx = key.split('_')[2];
                         $(`#result-image-${idx}`).attr("src", img_str).show();
                     }
+                    // $(`#prompt-info`).style.visibility = "visible"
+                    $(`#right-section`).show();
+                    $(`#prompt-info`).show();
+                    $(`#prompt-result`).text(response.prompt)
                 },
                 error: function(error) {
                     console.log(error);
                 }
             });
         });
+        
+        $('#resetForm').click(function() {
+            // Reset the form using jQuery's .reset() method on the form DOM element
+            $('form')[0].reset();
 
-        function handleFormSubmit(event) {
-            event.preventDefault();  // This prevents the form from submitting the traditional way
+            // For any additional logic, like hiding images or resetting custom form elements, add here.
+            // For example: if you want to hide all result images when the form is reset:
+            $(`#right-section`).hide()
+            $('[id^=result-image-]').hide();
+            $(`#prompt-info`).hide();
+        });
+        
+//         $('#altsubmit').click(function(){
+//             event.preventDefault();  // This prevents the form from submitting the traditional way
             
-            // Accessing radio button values
-            const genderValue = document.querySelector('input[name="gender"]:checked').value;
-            const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
-            const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
-            const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
+//             // Accessing radio button values
+//             const genderValue = document.querySelector('input[name="gender"]:checked').value;
+//             const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
+//             const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
+//             const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
         
-            // Accessing text box values
-            const locationValue = document.getElementById('location').value;
-            const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
+//             // Accessing text box values
+//             const locationValue = document.getElementById('location').value;
+//             const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
         
-            console.log('Gender:', genderValue);
-            console.log('Eye Color:', eyeColorValue);
-            console.log('Hair Color:', hairColorValue);
-            console.log('Skin Tone:', skinToneValue);
-            console.log('Location:', locationValue);
-            console.log('Date/Description:', dateOrDescriptionValue);
+//             console.log('Gender:', genderValue);
+//             console.log('Eye Color:', eyeColorValue);
+//             console.log('Hair Color:', hairColorValue);
+//             console.log('Skin Tone:', skinToneValue);
+//             console.log('Location:', locationValue);
+//             console.log('Date/Description:', dateOrDescriptionValue);
+//         });
         
-            // TODO: Process the form data as needed
-        }
         
-        // Add event listener for form submission
-        document.querySelector('form').addEventListener('submit', handleFormSubmit);
+//         function handleFormSubmit(event) {
+//             event.preventDefault();  // This prevents the form from submitting the traditional way
+            
+//             // Accessing radio button values
+//             const genderValue = document.querySelector('input[name="gender"]:checked').value;
+//             const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
+//             const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
+//             const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
+        
+//             // Accessing text box values
+//             const locationValue = document.getElementById('location').value;
+//             const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
+        
+//             console.log('Gender:', genderValue);
+//             console.log('Eye Color:', eyeColorValue);
+//             console.log('Hair Color:', hairColorValue);
+//             console.log('Skin Tone:', skinToneValue);
+//             console.log('Location:', locationValue);
+//             console.log('Date/Description:', dateOrDescriptionValue);
+        
+//             // TODO: Process the form data as needed
+//         }
+        
+//         // Add event listener for form submission
+//         document.querySelector('form').addEventListener('submit', handleFormSubmit);
     </script>
 </body>
 
