@@ -7,6 +7,7 @@ from transformers import BlipProcessor, BlipForConditionalGeneration
 from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, AutoencoderKL
 # from generation import avatar_generation as avatar_generation
 import avatar_generation
+import random
 
 # Initialize the Flask application and configurations
 app = Flask(__name__)
@@ -18,6 +19,20 @@ vae_path = "madebyollin/sdxl-vae-fp16-fix"
 diffuser_path = "stabilityai/stable-diffusion-xl-base-1.0"
 device = "cuda"
 
+images_to_generate = 4
+
+def make_generators(count):
+    seeds = [random.randint(0, 1000) for _ in range(count)]
+    generators = [torch.Generator(device=device).manual_seed(i) for i in seeds]
+    # for i in range(count):
+    #     generators.append(random.randint(0, 100))
+    return seeds, generators
+
+seeds, generators = make_generators(images_to_generate)
+
+
+# generators = 
+
 # Initialize models outside routes
 cap_processor = BlipProcessor.from_pretrained(caption_path)
 cap_model = BlipForConditionalGeneration.from_pretrained(caption_path, torch_dtype=torch.float16).to(device)
@@ -26,6 +41,9 @@ vae = AutoencoderKL.from_pretrained(vae_path, torch_dtype=torch.float16)
 pipe = StableDiffusionXLControlNetPipeline.from_pretrained(diffuser_path, controlnet=controlnet, vae=vae, torch_dtype=torch.float16)
 pipe.enable_model_cpu_offload()
 
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -33,6 +51,9 @@ def index():
 @app.route('/transform', methods=['POST'])
 def transform_image():
     try:
+        seeds, generators = make_generators(images_to_generate)
+        
+        
         data = request.json
         image_data = base64.b64decode(data['imageBase64'])
         image = Image.open(io.BytesIO(image_data))
@@ -63,6 +84,13 @@ def transform_image():
     except Exception as e:
         print(f'error: {str(e)}')
         return jsonify({'error': str(e)})
+    
+@app.route('/modify', methods=['POST'])
+def modify_image():
+    data = request.json
+    num = data['num']
+    
+    
 
 if __name__ == '__main__':
     port = 5001
