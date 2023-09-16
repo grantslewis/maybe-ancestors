@@ -27,7 +27,7 @@ IMAGE_COUNT = 4
 INITIAL_STEPS = 10
 HIGH_NOISE_FRAC = 0.7
 
-PRE_PROMPT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a  " + prompt
+PRE_PROMPT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a "
 NEGATIVE_PROMPT = "soft line, lowres, text, sketch, bad hands, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast"
 
 
@@ -70,11 +70,12 @@ def transform_image():
         seeds, generators = make_generators(IMAGE_COUNT)
         data = request.json
         prompt = data['inputText']
+        prompt = PRE_PROMPT + prompt
         # prompt
         
         images = pipe(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_end=HIGH_NOISE_FRAC, num_images_per_prompt=IMAGE_COUNT, output_type="latent", negative_prompt=NEGATIVE_PROMPT).images
         updated_images = []
-        ret_json = dict()
+        ret_info = dict()
         for i, image in enumerate(images):
                 # image.save("result_image.jpg")
             image = refiner(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_start=HIGH_NOISE_FRAC, image=image, negative_prompt=NEGATIVE_PROMPT).images[0]
@@ -83,14 +84,11 @@ def transform_image():
             image.save(f"{image_name}.jpg")
             
             buffered = io.BytesIO()
-            # result_image.save(buffered, format="PNG")
-            # img_str = base64.b64encode(buffered.getvalue())
-        
-        # return jsonify({'result_image': img_str.decode('utf-8')})
+            image.save(buffered, format="PNG")
+            img_str = base64.b64encode(buffered.getvalue()) 
             
-            
-            ret_json[f"{image_name}"] = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        return jsonify(ret_json)
+            ret_info[f"{image_name}"] = img_str.decode('utf-8')
+        return jsonify({'result_images': ret_info})
         
         
         
@@ -131,5 +129,5 @@ def modify_image():
     
 
 if __name__ == '__main__':
-    port = 5001
+    port = 5002
     app.run(debug=True, port=port)

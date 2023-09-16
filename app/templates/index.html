@@ -138,6 +138,58 @@ function handleImageUpload(event) {
 //     }
 // });
     
+    
+    
+// $('#submit').click(function() {
+//     console.log("Submit button clicked!"); // Log statement
+    
+//     const intensityLevel = $("#intensitySlider").val();
+//     const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
+//     const dataURL = canvas.toDataURL("image/png");
+//     const base64Image = dataURL.split(',')[1];  // Only the Base64 content
+
+//     $.ajax({
+//         type: 'POST',
+//         url: '/transform',
+//         contentType: 'application/json',
+//         data: JSON.stringify({
+//             imageBase64: base64Image,
+//             intensityLevel: intensityLevel,  // Include the intensity level here
+//             inputText: inputTextValue  // Include the value from input_text here
+//         }),
+//         success: function(response) {
+//             // Assuming the response looks like:
+//             // {
+//             //   result_image_1: "...",
+//             //   result_image_2: "...",
+//             //   ...
+//             // }
+
+//             // Loop through each key in the response
+            
+//             fprint(response)
+            
+            
+//             for (let key in response) {
+//                 if (response.hasOwnProperty(key) && key.startsWith("result_image_")) {
+//                     // Extract the image number from the key
+//                     const imageNum = key.split("_")[2];
+
+//                     // Construct the image source string
+//                     const img_str = 'data:image/png;base64,' + response[key];
+
+//                     // Update the respective image element
+//                     $("#result-image-" + imageNum).attr("src", img_str).show();
+//                 }
+//             }
+//         },
+//         error: function(error) {
+//             console.log(error);
+//         }
+//     });
+// });
+
+    
 $('#submit').click(function() {
     console.log("Submit button clicked!"); // Log statement
     
@@ -145,7 +197,6 @@ $('#submit').click(function() {
     const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
     const dataURL = canvas.toDataURL("image/png");
     const base64Image = dataURL.split(',')[1];  // Only the Base64 content
-
     $.ajax({
         type: 'POST',
         url: '/transform',
@@ -156,25 +207,18 @@ $('#submit').click(function() {
             inputText: inputTextValue  // Include the value from input_text here
         }),
         success: function(response) {
-            // Assuming the response looks like:
-            // {
-            //   result_image_1: "...",
-            //   result_image_2: "...",
-            //   ...
-            // }
+            console.log('got response')
+            console.log(response)
+            // Iterate over the keys in result_images
+            for(let key in response.result_images) {
+                
+                const img_str = 'data:image/png;base64,' + response.result_images[key];
 
-            // Loop through each key in the response
-            for (let key in response) {
-                if (response.hasOwnProperty(key) && key.startsWith("result_image_")) {
-                    // Extract the image number from the key
-                    const imageNum = key.split("_")[2];
-
-                    // Construct the image source string
-                    const img_str = 'data:image/png;base64,' + response[key];
-
-                    // Update the respective image element
-                    $("#result-image-" + imageNum).attr("src", img_str).show();
-                }
+                // Extract the index from the key
+                const idx = key.split('_')[2];
+                console.log(key, idx)
+                // Set the src attribute of the corresponding image element
+                $(`#result-image-${idx}`).attr("src", img_str).show();
             }
         },
         error: function(error) {
@@ -182,7 +226,6 @@ $('#submit').click(function() {
         }
     });
 });
-
 
 
 </script>
