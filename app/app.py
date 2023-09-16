@@ -27,7 +27,7 @@ IMAGE_COUNT = 4
 INITIAL_STEPS = 10
 HIGH_NOISE_FRAC = 0.7
 
-PRE_PROMPT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a  " + prompt
+PRE_PROMPT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a "
 NEGATIVE_PROMPT = "soft line, lowres, text, sketch, bad hands, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast"
 
 
@@ -70,6 +70,7 @@ def transform_image():
         seeds, generators = make_generators(IMAGE_COUNT)
         data = request.json
         prompt = data['inputText']
+        prompt = PRE_PROMPT + prompt
         # prompt
         
         images = pipe(prompt=prompt, num_inference_steps=INITIAL_STEPS, denoising_end=HIGH_NOISE_FRAC, num_images_per_prompt=IMAGE_COUNT, output_type="latent", negative_prompt=NEGATIVE_PROMPT).images
@@ -84,10 +85,7 @@ def transform_image():
             
             buffered = io.BytesIO()
             image.save(buffered, format="PNG")
-            img_str = base64.b64encode(buffered.getvalue())
-        
-        # return jsonify({'result_image': img_str.decode('utf-8')})
-            
+            img_str = base64.b64encode(buffered.getvalue()) 
             
             ret_info[f"{image_name}"] = img_str.decode('utf-8')
         return jsonify({'result_images': ret_info})
@@ -131,5 +129,5 @@ def modify_image():
     
 
 if __name__ == '__main__':
-    port = 5001
+    port = 5002
     app.run(debug=True, port=port)

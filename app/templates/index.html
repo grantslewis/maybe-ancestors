@@ -1,291 +1,178 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Draw and Transform</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-<div class="main-container">
-    <div class="left-section">
-        <h1 id="mainHeader">Draw an Image</h1>
-        <div id="canvas-container">
-            <canvas id="canvas" width="400" height="400" style="border: 1px solid;"></canvas>
-        </div>
-        <div id="drawModes">
-            <button id="eraserButton">Eraser</button>
-            <button id="drawButton">Draw</button>
-            <button id="clearButton">Clear</button>
-        </div>
-        <div>
-            <textarea id="input_text" rows="5" cols="47"></textarea>
-        </div>
-        <div id="transformMode">
-            <label for="intensitySlider">Faithfulness to Source Image: </label>
-            <input type="range" id="intensitySlider" name="intensityLevel" min="0" max="1" step="0.01" value="0.3">
-            <button id="submit">Transform Image</button> <!-- Moved below slider -->
-        </div>
-    </div>
-    <div class="right-section">
-        <h1 id="mainHeader">Resulting Image</h1>
-        <!-- Placeholder for the result image -->
-        <div class="result-images grid-container">
-            <img id="result-image-1" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
-            <img id="result-image-2" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
-            <img id="result-image-3" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
-            <img id="result-image-4" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
-        </div>
-    </div>
-</div>
-
-<script>
-const canvas = document.getElementById('canvas');
-const ctx = canvas.getContext('2d');
-let eraserMode = false;
-let drawing = false;
-
-canvas.addEventListener('mousedown', () => { drawing = true; });
-canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-canvas.addEventListener('mousemove', draw);
-
-function draw(event) {
-    if (!drawing) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    
-    
-    ctx.lineWidth = eraserMode ? 15 : 5;;
-    ctx.lineCap = 'round';
-
-    ctx.strokeStyle = eraserMode ? 'white' : 'black';
-
-    ctx.lineTo(x, y);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-}
-
-
-const eraserButton = document.getElementById("eraserButton");
-const drawButton = document.getElementById("drawButton");
-
-eraserButton.addEventListener("click", () => {
-    console.log("eraser clicked")
-    eraserMode = true;
-    eraserButton.classList.add('highlight');
-    drawButton.classList.remove('highlight');
-});
-
-drawButton.addEventListener("click", () => {
-    eraserMode = false;
-    drawButton.classList.add('highlight');
-    eraserButton.classList.remove('highlight');
-});
-
-
-
-const clearButton = document.getElementById("clearButton");
-clearButton.addEventListener("click", () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-});
-
-
-function handleImageUpload(event) {
-    const fileInput = event.target;
-    const canvas = document.getElementById("canvas");
-    const context = canvas.getContext("2d");
-
-    const image = new Image();
-    image.onload = () => {
-        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    };
-
-    const file = fileInput.files[0];
-    if (file) {
-        const imageURL = URL.createObjectURL(file);
-        image.src = imageURL;
-    }
-}
-
-// $('#submit').click(function() {
-//     console.log("Submit button clicked!"); // Log statement
-    
-//     const intensityLevel = $("#intensitySlider").val();
-//     const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
-//     const dataURL = canvas.toDataURL("image/png");
-//     const base64Image = dataURL.split(',')[1];  // Only the Base64 content
-
-//     for (let i = 1; i <= 4; i++) {
-//         $.ajax({
-//             type: 'POST',
-//             url: '/transform',
-//             contentType: 'application/json',
-//             data: JSON.stringify({
-//                 imageBase64: base64Image,
-//                 intensityLevel: intensityLevel,  // Include the intensity level here
-//                 inputText: inputTextValue  // Include the value from input_text here
-//             }),
-//             success: function(response) {
-//                 const img_str = 'data:image/png;base64,' + response.result_image;
-//                 $(`#result-image-${i}`).attr("src", img_str).show();
-//             },
-//             error: function(error) {
-//                 console.log(error);
-//             }
-//         });
-//     }
-// });
-    
-$('#submit').click(function() {
-    console.log("Submit button clicked!"); // Log statement
-    
-    const intensityLevel = $("#intensitySlider").val();
-    const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
-    const dataURL = canvas.toDataURL("image/png");
-    const base64Image = dataURL.split(',')[1];  // Only the Base64 content
-
-    $.ajax({
-        type: 'POST',
-        url: '/transform',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            imageBase64: base64Image,
-            intensityLevel: intensityLevel,  // Include the intensity level here
-            inputText: inputTextValue  // Include the value from input_text here
-        }),
-        success: function(response) {
-            // Assuming the response looks like:
-            // {
-            //   result_image_1: "...",
-            //   result_image_2: "...",
-            //   ...
-            // }
-
-            // Loop through each key in the response
-            for (let key in response) {
-                if (response.hasOwnProperty(key) && key.startsWith("result_image_")) {
-                    // Extract the image number from the key
-                    const imageNum = key.split("_")[2];
-
-                    // Construct the image source string
-                    const img_str = 'data:image/png;base64,' + response[key];
-
-                    // Update the respective image element
-                    $("#result-image-" + imageNum).attr("src", img_str).show();
-                }
-            }
-        },
-        error: function(error) {
-            console.log(error);
+    <style>
+        #canvas-container {
+            position: relative;
+            text-align: center;
+            margin: auto;
         }
-    });
-});
 
+        .highlight {
+            background-color: yellow;
+        }
 
+        #drawModes, #transformMode {
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            margin-top: 20px;
+        }
 
-</script>
+        #canvas {
+            border: 1px solid black;
+        }
 
+        #controls button, #eraserButton, #drawButton, #clearButton, #submit {
+            margin: 5px;
+        }
+
+        #mainHeader {
+            text-align: center;
+        }
+
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .left-section, .right-section {
+            flex: 1;
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .grid-container img {
+            max-width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Left Section - Drawing Area -->
+        <div class="left-section">
+            <h1 id="mainHeader">Draw an Image</h1>
+            <div id="canvas-container">
+                <canvas id="canvas" width="400" height="400"></canvas>
+            </div>
+            <!-- Drawing Controls -->
+            <div id="drawModes">
+                <button id="eraserButton">Eraser</button>
+                <button id="drawButton">Draw</button>
+                <button id="clearButton">Clear</button>
+            </div>
+            <div>
+                <textarea id="input_text" rows="5" cols="47"></textarea>
+            </div>
+            <!-- Transform Controls -->
+            <div id="transformMode">
+                <label for="intensitySlider">Faithfulness to Source Image: </label>
+                <input type="range" id="intensitySlider" name="intensityLevel" min="0" max="1" step="0.01" value="0.3">
+                <button id="submit">Transform Image</button>
+            </div>
+        </div>
+        <!-- Right Section - Result Area -->
+        <div class="right-section">
+            <h1 id="mainHeader">Resulting Image</h1>
+            <div class="result-images grid-container">
+                <!-- Placeholder Images -->
+                <img id="result-image-1" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
+                <img id="result-image-2" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
+                <img id="result-image-3" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
+                <img id="result-image-4" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Drawing Initialization
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let eraserMode = false;
+        let drawing = false;
+
+        // Drawing Functions
+        canvas.addEventListener('mousedown', () => { drawing = true; });
+        canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(event) {
+            if (!drawing) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+
+            ctx.lineWidth = eraserMode ? 15 : 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = eraserMode ? 'white' : 'black';
+            ctx.lineTo(x, y);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        }
+
+        // Eraser & Draw Mode Handlers
+        document.getElementById("eraserButton").addEventListener("click", () => {
+            eraserMode = true;
+            eraserButton.classList.add('highlight');
+            drawButton.classList.remove('highlight');
+        });
+
+        document.getElementById("drawButton").addEventListener("click", () => {
+            eraserMode = false;
+            drawButton.classList.add('highlight');
+            eraserButton.classList.remove('highlight');
+        });
+
+        // Clear Canvas Handler
+        document.getElementById("clearButton").addEventListener("click", () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Transform Image Handler
+        $('#submit').click(function() {
+            console.log("Submit button clicked!");
+
+            const intensityLevel = $("#intensitySlider").val();
+            const inputTextValue = $("#input_text").val();
+            const dataURL = canvas.toDataURL("image/png");
+            const base64Image = dataURL.split(',')[1];
+
+            $.ajax({
+                type: 'POST',
+                url: '/transform',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    imageBase64: base64Image,
+                    intensityLevel: intensityLevel,
+                    inputText: inputTextValue
+                }),
+                success: function(response) {
+                    for(let key in response.result_images) {
+                        const img_str = 'data:image/png;base64,' + response.result_images[key];
+                        const idx = key.split('_')[2];
+                        $(`#result-image-${idx}`).attr("src", img_str).show();
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+    </script>
 </body>
+
 </html>
-
-<style>
-    #canvas-container {
-        position: relative;
-        text-align: center;
-        margin: auto;
-    }
-    
-    .highlight {
-    background-color: yellow;
-}
-
-
-    #drawModes {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        margin-top: 20px;
-    }
-
-    #transformMode {
-        text-align: center;
-        margin-top: 20px;
-    }
-
-    #canvas {
-        border: 1px solid black;
-    }
-
-    #controls {
-        margin-top: 10px;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
-
-    #controls button {
-        margin: 5px;
-        display: block;
-    }
-
-    #eraserButton {
-        margin: 5px;
-    }
-
-    #drawButton {
-        margin: 5px
-    }
-
-    #clearButton {
-        margin: 5px;
-    }
-
-    #submit {
-        margin: 5px;
-    }
-
-
-    #mainHeader {
-        text-align: center;
-    }
-    
-    .main-container {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start; /* Aligns items to the start of the cross axis */
-    }
-
-    .left-section {
-        flex: 1;
-        text-align: center;
-    }
-
-    .right-section {
-        flex: 1;
-        text-align: center;
-    }
-
-
-    #result-image {
-        max-width: 400px;
-        max-height: 400px;
-    }
-    
-    .grid-container {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr); /* Creates a 2-column grid */
-        gap: 20px; /* Space between grid items */
-    }
-
-    /* Optional: Adjust image style */
-    .grid-container img {
-        max-width: 100%;
-        height: auto;
-    }
-
-
-</style>
