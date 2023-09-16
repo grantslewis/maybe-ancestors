@@ -44,7 +44,10 @@ def transform_image():
             image = background  # Now 'image' is an RGB image
         image = image.resize((1024, 1024))
 
-        prompt = avatar_generation.caption_image(cap_processor, cap_model, image, text=caption_text, device=device)
+        prompt = data['inputText']
+        print('PROMPT: ', prompt)
+        if len(prompt) == 0:
+            prompt = avatar_generation.caption_image(cap_processor, cap_model, image, text=caption_text, device=device)
         print(prompt)
         prompt = "HD, 4k, Masterpiece, High Quality avatar inspired by a " + prompt
         result_image = avatar_generation.generate_avatar(pipe, prompt, controlnet_conditioning_scale, image)
