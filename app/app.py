@@ -5,7 +5,8 @@ import io
 from PIL import Image
 from transformers import BlipProcessor, BlipForConditionalGeneration
 from diffusers import StableDiffusionXLControlNetPipeline, ControlNetModel, AutoencoderKL
-import generation.avatar_generation as avatar_generation
+# from generation import avatar_generation as avatar_generation
+import avatar_generation
 
 # Initialize the Flask application and configurations
 app = Flask(__name__)
@@ -60,5 +61,5 @@ def transform_image():
         return jsonify({'error': str(e)})
 
 if __name__ == '__main__':
-    port = 5000
+    port = 5001
     app.run(debug=True, port=port)
