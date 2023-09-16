@@ -28,7 +28,12 @@
     <div class="right-section">
         <h1 id="mainHeader">Resulting Image</h1>
         <!-- Placeholder for the result image -->
-        <img id="result-image" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
+        <div class="result-images grid-container">
+            <img id="result-image-1" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
+            <img id="result-image-2" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
+            <img id="result-image-3" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
+            <img id="result-image-4" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image" style="max-width:400px; max-height:400px;">
+        </div>
     </div>
 </div>
 
@@ -104,32 +109,76 @@ function handleImageUpload(event) {
     }
 }
 
-$('#submit').click(function() {
-    console.log("Submit button clicked!"); // Log statement
+// $('#submit').click(function() {
+//     console.log("Submit button clicked!"); // Log statement
     
-    const intensityLevel = $("#intensitySlider").val();
-    const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
-    const dataURL = canvas.toDataURL("image/png");
-    const base64Image = dataURL.split(',')[1];  // Only the Base64 content
+//     const intensityLevel = $("#intensitySlider").val();
+//     const inputTextValue = $("#input_text").val();  // Retrieve the value from input_text
+//     const dataURL = canvas.toDataURL("image/png");
+//     const base64Image = dataURL.split(',')[1];  // Only the Base64 content
 
-    $.ajax({
-        type: 'POST',
-        url: '/transform',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            imageBase64: base64Image,
-            intensityLevel: intensityLevel,  // Include the intensity level here
-            inputText: inputTextValue  // Include the value from input_text here
-        }),
-        success: function(response) {
-            const img_str = 'data:image/png;base64,' + response.result_image;
-            $("#result-image").attr("src", img_str).show();
-        },
-        error: function(error) {
-            console.log(error);
-        }
+//     for (let i = 1; i <= 4; i++) {
+//         $.ajax({
+//             type: 'POST',
+//             url: '/transform',
+//             contentType: 'application/json',
+//             data: JSON.stringify({
+//                 imageBase64: base64Image,
+//                 intensityLevel: intensityLevel,  // Include the intensity level here
+//                 inputText: inputTextValue  // Include the value from input_text here
+//             }),
+//             success: function(response) {
+//                 const img_str = 'data:image/png;base64,' + response.result_image;
+//                 $(`#result-image-${i}`).attr("src", img_str).show();
+//             },
+//             error: function(error) {
+//                 console.log(error);
+//             }
+//         });
+//     }
+// });
+    
+    function sendPostRequest(imageBase64, intensityLevel, inputTextValue) {
+    return new Promise((resolve, reject) => {
+        $.ajax({
+            type: 'POST',
+            url: '/transform',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                imageBase64: imageBase64,
+                intensityLevel: intensityLevel,
+                inputText: inputTextValue
+            }),
+            success: function(response) {
+                resolve(response.result_image);
+            },
+            error: function(error) {
+                reject(error);
+            }
+        });
     });
+}
+
+$('#submit').click(async function() {
+    console.log("Submit button clicked!");
+
+    const intensityLevel = $("#intensitySlider").val();
+    const inputTextValue = $("#input_text").val();
+    const dataURL = canvas.toDataURL("image/png");
+    const base64Image = dataURL.split(',')[1];
+
+    for (let i = 1; i <= 4; i++) {
+        try {
+            const resultImage = await sendPostRequest(base64Image, intensityLevel, inputTextValue);
+            const img_str = 'data:image/png;base64,' + resultImage;
+            $(`#result-image-${i}`).attr("src", img_str).show();
+        } catch (error) {
+            console.log(`Error in request #${i}:`, error);
+        }
+    }
 });
+
+
 
 </script>
 
@@ -219,6 +268,18 @@ $('#submit').click(function() {
     #result-image {
         max-width: 400px;
         max-height: 400px;
+    }
+    
+    .grid-container {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr); /* Creates a 2-column grid */
+        gap: 20px; /* Space between grid items */
+    }
+
+    /* Optional: Adjust image style */
+    .grid-container img {
+        max-width: 100%;
+        height: auto;
     }
 
 

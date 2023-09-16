@@ -45,12 +45,13 @@ def transform_image():
         image = image.resize((1024, 1024))
 
         prompt = data['inputText']
+        negative_prompt = "soft line, lowres, text, sketch, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast"
         print('PROMPT: ', prompt)
         if len(prompt) == 0:
             prompt = avatar_generation.caption_image(cap_processor, cap_model, image, text=caption_text, device=device)
         print(prompt)
-        prompt = "HD, 4k, Masterpiece, High Quality avatar inspired by a " + prompt
-        result_image = avatar_generation.generate_avatar(pipe, prompt, controlnet_conditioning_scale, image)
+        prompt = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range, an avatar of a  " + prompt
+        result_image = avatar_generation.generate_avatar(pipe, prompt, controlnet_conditioning_scale, image, negative_prompt=negative_prompt)
         result_image.save("result_image.jpg")  # You mentioned you don't want to save the new image
 
         buffered = io.BytesIO()

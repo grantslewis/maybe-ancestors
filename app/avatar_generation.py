@@ -14,7 +14,7 @@ def canny_generation(image, t_lower=100, t_upper=200):
     image = cv2.Canny(image, t_lower, t_upper)
     return Image.fromarray(image, 'L')
 
-def generate_avatar(pipe, prompt, controlnet_conditioning_scale, image):
+def generate_avatar(pipe, prompt, controlnet_conditioning_scale, image, negative_prompt=''):
     control_image = canny_generation(image)
-    generated_image = pipe(prompt, controlnet_conditioning_scale=controlnet_conditioning_scale, image=control_image, num_inference_steps = 20).images[0]
+    generated_image = pipe(prompt, controlnet_conditioning_scale=controlnet_conditioning_scale, image=control_image, num_inference_steps = 20, negative_prompt=negative_prompt).images[0]
     return generated_image
