@@ -5,31 +5,6 @@
     <title>Draw and Transform</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
-        #canvas-container {
-            position: relative;
-            text-align: center;
-            margin: auto;
-        }
-
-        .highlight {
-            background-color: yellow;
-        }
-
-        #drawModes, #transformMode {
-            display: flex;
-            flex-direction: row;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        #canvas {
-            border: 1px solid black;
-        }
-
-        #controls button, #eraserButton, #drawButton, #clearButton, #submit {
-            margin: 5px;
-        }
-
         #mainHeader {
             text-align: center;
         }
@@ -64,15 +39,54 @@
         <!-- Left Section - Drawing Area -->
         <div class="left-section">
             <h1 id="mainHeader">Draw an Image</h1>
-            <div id="canvas-container">
-                <canvas id="canvas" width="400" height="400"></canvas>
-            </div>
-            <!-- Drawing Controls -->
-            <div id="drawModes">
-                <button id="eraserButton">Eraser</button>
-                <button id="drawButton">Draw</button>
-                <button id="clearButton">Clear</button>
-            </div>
+            <form action="/submit" method="post"> <!-- You can adjust the action to your desired endpoint -->
+        
+                <!-- Gender Section -->
+                <fieldset>
+                    <legend>Gender</legend>
+                    <label><input type="radio" name="gender" value="male"> Male</label>
+                    <label><input type="radio" name="gender" value="female"> Female</label>
+                    <label><input type="radio" name="gender" value="other"> Other</label>
+                </fieldset>
+        
+                <!-- Eye Color Section -->
+                <fieldset>
+                    <legend>Eye Color</legend>
+                    <label><input type="radio" name="eyeColor" value="blue"> Blue</label>
+                    <label><input type="radio" name="eyeColor" value="brown"> Brown</label>
+                    <label><input type="radio" name="eyeColor" value="green"> Green</label>
+                    <!-- Add more eye colors if needed -->
+                </fieldset>
+        
+                <!-- Hair Color Section -->
+                <fieldset>
+                    <legend>Hair Color</legend>
+                    <label><input type="radio" name="hairColor" value="blonde"> Blonde</label>
+                    <label><input type="radio" name="hairColor" value="black"> Black</label>
+                    <label><input type="radio" name="hairColor" value="brown"> Brown</label>
+                    <!-- Add more hair colors if needed -->
+                </fieldset>
+        
+                <!-- Skin Tone Section -->
+                <fieldset>
+                    <legend>Skin Tone</legend>
+                    <label><input type="radio" name="skinTone" value="light"> Light</label>
+                    <label><input type="radio" name="skinTone" value="medium"> Medium</label>
+                    <label><input type="radio" name="skinTone" value="dark"> Dark</label>
+                    <!-- Add more skin tones if needed -->
+                </fieldset>
+        
+                <!-- Location Input -->
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" placeholder="Enter a location">
+        
+                <!-- Date or Description Input -->
+                <label for="dateOrDescription">Date or Description of Time Period:</label>
+                <input type="text" id="dateOrDescription" name="dateOrDescription" placeholder="Enter a date or description">
+        
+                <!-- Submit Button -->
+                <input type="submit" value="Submit">
+            </form>
             <div>
                 <textarea id="input_text" rows="5" cols="47"></textarea>
             </div>
@@ -97,50 +111,6 @@
     </div>
 
     <script>
-        // Drawing Initialization
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        let eraserMode = false;
-        let drawing = false;
-
-        // Drawing Functions
-        canvas.addEventListener('mousedown', () => { drawing = true; });
-        canvas.addEventListener('mouseup', () => { drawing = false; ctx.beginPath(); });
-        canvas.addEventListener('mousemove', draw);
-
-        function draw(event) {
-            if (!drawing) return;
-
-            const rect = canvas.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-
-            ctx.lineWidth = eraserMode ? 15 : 5;
-            ctx.lineCap = 'round';
-            ctx.strokeStyle = eraserMode ? 'white' : 'black';
-            ctx.lineTo(x, y);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
-
-        // Eraser & Draw Mode Handlers
-        document.getElementById("eraserButton").addEventListener("click", () => {
-            eraserMode = true;
-            eraserButton.classList.add('highlight');
-            drawButton.classList.remove('highlight');
-        });
-
-        document.getElementById("drawButton").addEventListener("click", () => {
-            eraserMode = false;
-            drawButton.classList.add('highlight');
-            eraserButton.classList.remove('highlight');
-        });
-
-        // Clear Canvas Handler
-        document.getElementById("clearButton").addEventListener("click", () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-        });
 
         // Transform Image Handler
         $('#submit').click(function() {
@@ -148,15 +118,14 @@
 
             const intensityLevel = $("#intensitySlider").val();
             const inputTextValue = $("#input_text").val();
-            const dataURL = canvas.toDataURL("image/png");
-            const base64Image = dataURL.split(',')[1];
+
+
 
             $.ajax({
                 type: 'POST',
                 url: '/transform',
                 contentType: 'application/json',
                 data: JSON.stringify({
-                    imageBase64: base64Image,
                     intensityLevel: intensityLevel,
                     inputText: inputTextValue
                 }),
@@ -172,6 +141,32 @@
                 }
             });
         });
+
+        function handleFormSubmit(event) {
+            event.preventDefault();  // This prevents the form from submitting the traditional way
+            
+            // Accessing radio button values
+            const genderValue = document.querySelector('input[name="gender"]:checked').value;
+            const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
+            const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
+            const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
+        
+            // Accessing text box values
+            const locationValue = document.getElementById('location').value;
+            const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
+        
+            console.log('Gender:', genderValue);
+            console.log('Eye Color:', eyeColorValue);
+            console.log('Hair Color:', hairColorValue);
+            console.log('Skin Tone:', skinToneValue);
+            console.log('Location:', locationValue);
+            console.log('Date/Description:', dateOrDescriptionValue);
+        
+            // TODO: Process the form data as needed
+        }
+        
+        // Add event listener for form submission
+        document.querySelector('form').addEventListener('submit', handleFormSubmit);
     </script>
 </body>
 
