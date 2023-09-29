@@ -27,7 +27,7 @@ IMAGE_COUNT = 4
 INITIAL_STEPS = 10
 HIGH_NOISE_FRAC = 0.7
 
-PROMPT_IMPROVMENT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, photo-realistic, uhd, DSLR, soft lighting, film grain, high dynamic range,"
+PROMPT_IMPROVMENT = "8k, RAW photo, best quality, masterpiece, highly detailed, realistic style, uhd, DSLR, soft lighting, film grain, high dynamic range," # photo-realistic, 
 PROMPT_BASE = "A headshot of a"
 
 NEGATIVE_PROMPT = "soft line, lowres, text, sketch, bad hands, extra digit, fewer digits, cropped, worst quality, low quality, normal quality, jpeg artifacts, signature, watermark, username, blurry, artist name, blurry, ugly, logo, pixelated, oversharpened, high contrast, NSFW"
@@ -119,6 +119,8 @@ def transform_image():
         if len(data["dateOrDescription"]) > 0:
             prompt += f" living during the {data['dateOrDescription']}"
         prompt += ". "
+        
+        prompt = ""
         prompt += data["inputText"]
         
         prompt_base = prompt
@@ -184,5 +186,5 @@ def modify_image():
     
 
 if __name__ == '__main__':
-    port = 5002
+    port = 5003
     app.run(debug=True, port=port)

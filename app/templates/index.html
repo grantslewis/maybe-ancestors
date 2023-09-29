@@ -136,6 +136,15 @@
         // Transform Image Handler
         $('#submit').click(function() {
             console.log("Submit button clicked!");
+            
+            // Select the button using its id or another selector
+            let button = document.getElementById('submit');
+            
+            // Disable the button
+            button.disabled = true;
+
+            // Optionally change the button's style (like its color) if the default disabled appearance isn't enough
+            button.style.backgroundColor = "#cccccc";  // This sets the background to a grey color.
 
             const intensityLevel = $("#intensitySlider").val();
             const inputTextValue = $("#input_text").val();
@@ -185,6 +194,11 @@
                     console.log(error);
                 }
             });
+            // Enable the button
+            button.disabled = false;
+
+            // Optionally revert the button's style back to its original state
+            button.style.backgroundColor = "";  // This resets the background color to its original value.
         });
         
         $('#resetForm').click(function() {
