@@ -15,6 +15,9 @@ from diffusers import (
     UniPCMultistepScheduler,
 )
 
+## GAN
+# import gan_model
+
 CONTROL_NET_MODEL = "lllyasviel/control_v11p_sd15_canny"
 SD_MODEL = "runwayml/stable-diffusion-v1-5"
 
@@ -164,7 +167,10 @@ class ImageProcessor:
             prompt = prompt_builder(prompt)
         
 
-        seeds, generators = self.make_generators(self.IMAGE_COUNT)
+        # seeds, generators = self.make_generators(self.IMAGE_COUNT)
+        
+        ## GAN
+        # images = gan_model.main(image)
         
         ctrl_image = self.ctrl_net_processor(image)
 
@@ -178,7 +184,7 @@ class ImageProcessor:
 
         # Your code to generate images goes here
         seeds, generators = self.make_generators(IMAGE_COUNT)
-        images = self.pipe(prompt, num_inference_steps=INFERENCE_STEPS, generator=generator, image=pil_image).images
+        images = self.pipe(prompt, num_inference_steps=INFERENCE_STEPS, generator=generator, image=ctrl_image).images
         
 
         # Return results
