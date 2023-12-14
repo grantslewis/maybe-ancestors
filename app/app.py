@@ -1,7 +1,11 @@
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+
 from flask import Flask, render_template, request, jsonify
 import torch
 import base64
 import io
+from io import BytesIO
 from PIL import Image
 # from transformers import BlipProcessor, BlipForConditionalGeneration
 # from diffusers import DiffusionPipeline, StableDiffusionXLControlNetPipeline, ControlNetModel, AutoencoderKL
@@ -18,7 +22,9 @@ caption_text = ""
 # control_net_path = "diffusers/controlnet-canny-sdxl-1.0"
 VAE_PATH = "madebyollin/sdxl-vae-fp16-fix"
 DIFFUSER_PATH = "stabilityai/stable-diffusion-xl-base-1.0"
-DEVICE = "cuda"
+DEVICE = "cuda:0"
+
+
 
 
 
@@ -71,7 +77,28 @@ def transform_image():
     try:
         seeds, generators = make_generators(IMAGE_COUNT)
         data = request.json
-        print(data)
+        
+        print(request)
+        # data = request.get_json()
+        print({key: val for key, val in data.items() if key != "image"})
+        print('includes image' if 'image' in data else 'does not include image')
+    
+        # Extract base64 image data
+        image_data = None
+        if 'image' in data:
+            image_data = data['image']
+            if "base64," in image_data:
+                image_data = image_data.split("base64,")[1]
+            # Decode the base64 string
+            image_bytes = base64.b64decode(image_data)
+
+            # Convert bytes data to a PIL Image
+            image = Image.open(BytesIO(image_bytes))
+
+            # You can now use this image object for your purposes, e.g., processing, saving, etc.
+            # Example: Saving the image
+            image.save("uploaded_image.png")
+        
         # prompt = data['inputText']
         prompt = PROMPT_BASE #+ prompt
         if "culture" in data:
@@ -120,13 +147,15 @@ def transform_image():
             prompt += f" living during the {data['dateOrDescription']}"
         prompt += ". "
         
-        prompt = ""
+        if data["inputText"] is not None and len(data["inputText"]) > 0:
+            prompt = ""
+            
         prompt += data["inputText"]
         
         prompt_base = prompt
         prompt = f"{PROMPT_IMPROVMENT} {prompt}"
         
-        print(prompt)
+        print('PROMPT:', prompt)
         
         # prompt
         

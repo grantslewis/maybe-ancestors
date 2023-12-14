@@ -107,6 +107,12 @@
                 <label>Extra Info to Include:</label>
                 <textarea id="input_text" rows="5" cols="47"></textarea>
             </div>
+            <div>
+                <fieldset>
+                    <legend>Upload Image</legend>
+                    <input type="file" id="imageUpload" name="image" accept="image/*">
+                </fieldset>
+            </div>
             <!-- Transform Controls -->
 <!--             <div id="transformMode">
                 <label for="intensitySlider">Faithfulness to Source Image: </label>
@@ -133,22 +139,15 @@
 
     <script>
 
-        // Transform Image Handler
         $('#submit').click(function() {
-            console.log("Submit button clicked!");
-            
-            // Select the button using its id or another selector
-            let button = document.getElementById('submit');
-            
-            // Disable the button
-            button.disabled = true;
-
-            // Optionally change the button's style (like its color) if the default disabled appearance isn't enough
-            button.style.backgroundColor = "#cccccc";  // This sets the background to a grey color.
-
+            // Disable the submit button to prevent multiple submissions
+            let button = $('#submit');
+            button.prop('disabled', true);
+            button.css('backgroundColor', '#cccccc');
+        
+            // Gather form data
             const intensityLevel = $("#intensitySlider").val();
             const inputTextValue = $("#input_text").val();
-            
             const genderValue = $('input[name="gender"]:checked').val();
             const eyeColorValue = $('input[name="eyeColor"]:checked').val();
             const hairColorValue = $('input[name="hairColor"]:checked').val();
@@ -158,48 +157,66 @@
             const locationValue = $('#location').val();
             const occupationValue = $('#occupation').val();
             const dateOrDescriptionValue = $('#dateOrDescription').val();
-
-
-            $.ajax({
-                type: 'POST',
-                url: '/transform',
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    // intensityLevel: intensityLevel,
-                    inputText: inputTextValue,
-                    gender: genderValue,
-                    eyeColor: eyeColorValue,
-                    hairColor: hairColorValue,
-                    hairStyle: hairStyleValue,
-                    skinTone: skinToneValue,
-                    culture: cultureValue,
-                    location: locationValue,
-                    occupation: occupationValue,
-                    dateOrDescription: dateOrDescriptionValue
-                }),
-                success: function(response) {
-                    console.log('Recieved Response')
-                    console.log(response)
-                    for(let key in response.result_images) {
-                        const img_str = 'data:image/png;base64,' + response.result_images[key];
-                        const idx = key.split('_')[2];
-                        $(`#result-image-${idx}`).attr("src", img_str).show();
-                    }
-                    // $(`#prompt-info`).style.visibility = "visible"
-                    $(`#right-section`).show();
-                    $(`#prompt-info`).show();
-                    $(`#prompt-result`).text(response.prompt)
-                },
-                error: function(error) {
-                    console.log(error);
-                }
-            });
-            // Enable the button
-            button.disabled = false;
-
-            // Optionally revert the button's style back to its original state
-            button.style.backgroundColor = "";  // This resets the background color to its original value.
+        
+            // Handle image upload
+            const imageFile = document.getElementById('imageUpload').files[0];
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imageBase64 = e.target.result;
+        
+                    // AJAX request with image and form data
+                    $.ajax({
+                        type: 'POST',
+                        url: '/transform',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            inputText: inputTextValue,
+                            gender: genderValue,
+                            eyeColor: eyeColorValue,
+                            hairColor: hairColorValue,
+                            hairStyle: hairStyleValue,
+                            skinTone: skinToneValue,
+                            culture: cultureValue,
+                            location: locationValue,
+                            occupation: occupationValue,
+                            dateOrDescription: dateOrDescriptionValue,
+                            image: imageBase64
+                        }),
+                        success: function(response) {
+                            // Success handler
+                            console.log('Received Response');
+                            console.log(response);
+                            for (let key in response.result_images) {
+                                const imgStr = 'data:image/png;base64,' + response.result_images[key];
+                                const idx = key.split('_')[2];
+                                $(`#result-image-${idx}`).attr("src", imgStr).show();
+                            }
+                            $(`#right-section`).show();
+                            $(`#prompt-info`).show();
+                            $(`#prompt-result`).text(response.prompt);
+                        },
+                        error: function(error) {
+                            // Error handler
+                            console.log(error);
+                        },
+                        complete: function() {
+                            // Re-enable the submit button
+                            button.prop('disabled', false);
+                            button.css('backgroundColor', '');
+                        }
+                    });
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                // No image selected
+                alert("Please upload an image.");
+                button.prop('disabled', false);
+                button.css('backgroundColor', '');
+            }
         });
+        
+
         
         $('#resetForm').click(function() {
             // Reset the form using jQuery's .reset() method on the form DOM element
