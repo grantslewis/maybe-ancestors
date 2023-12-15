@@ -2,21 +2,37 @@
 <html>
 
 <head>
-    <title>Draw and Transform</title>
+    <title>Ancerator</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <style>
+<style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
         #mainHeader {
             text-align: center;
+            margin-bottom: 20px;
         }
 
         .main-container {
             display: flex;
             justify-content: center;
             align-items: flex-start;
+            padding: 20px;
         }
 
         .left-section, .right-section {
             flex: 1;
+            padding: 20px;
+        }
+
+        .left-section {
+            text-align: left; /* Adjust text alignment */
+            max-width: 400px; /* Set a maximum width */
+            margin: 0 auto; /* Center the section */
+        }
+
+        .right-section {
             text-align: center;
         }
 
@@ -30,6 +46,35 @@
             max-width: 100%;
             height: auto;
         }
+
+        form label, form input, form button, form fieldset {
+            display: block; /* Make each form element a block */
+            margin-bottom: 10px; /* Add spacing between elements */
+            width: 100%; /* Full width */
+        }
+
+        form input, form button, form fieldset {
+            padding: 8px; /* Padding for better appearance */
+        }
+
+        form fieldset {
+            border: 1px solid #ccc;
+            /* Light border for fieldset */
+        }
+        #resetForm {
+            display: block; /* Make button a block element */
+            margin: 10px auto; /* Center the button */
+        }
+
+        .main-container {
+            max-width: 80%; /* Set maximum width */
+            margin: auto; /* Center the container */
+        }
+
+        .right-section {
+            max-width: 400px; /* Set a maximum width for right section */
+            margin: 0 auto; /* Center the section */
+        }
     </style>
 </head>
 
@@ -38,245 +83,132 @@
     <div class="main-container">
         <!-- Left Section - Drawing Area -->
         <div class="left-section">
-            <h1 id="mainHeader">What Sort of Person Do You Want to Create?</h1>
+            <h1 id="mainHeader"> Let's Learn A Bit About Your Ancestor...</h1>
             <input type="button" id="resetForm" value="Reset Input Information">
-            <form action=""> <!-- You can adjust the action to your desired endpoint -->
-<!--                 action="/submit" method="post" -->
-        
-                <!-- Gender Section -->
-                <fieldset>
-                    <legend>Gender</legend>
-                    <label><input type="radio" name="gender" value="male"> Male</label>
-                    <label><input type="radio" name="gender" value="female"> Female</label>
-                    <label><input type="radio" name="gender" value="other"> Other</label>
-                </fieldset>
-        
-                <!-- Eye Color Section -->
-                <fieldset>
-                    <legend>Eye Color</legend>
-                    <label><input type="radio" name="eyeColor" value="blue"> Blue</label>
-                    <label><input type="radio" name="eyeColor" value="brown"> Brown</label>
-                    <label><input type="radio" name="eyeColor" value="green"> Green</label>
-                    <!-- Add more eye colors if needed -->
-                </fieldset>
-        
-                <!-- Hair Color Section -->
-                <fieldset>
-                    <legend>Hair Color</legend>
-                    <label><input type="radio" name="hairColor" value="blonde"> Blonde</label>
-                    <label><input type="radio" name="hairColor" value="black"> Black</label>
-                    <label><input type="radio" name="hairColor" value="brown"> Brown</label>
-                    <!-- Add more hair colors if needed -->
-                </fieldset>
+            <form action=""> <!-- Adjust the action to your desired endpoint -->
                 
-                <fieldset>
-                    <legend>Hair Style</legend>
-                    <label><input type="radio" name="hairStyle" value="curly"> Curly</label>
-                    <label><input type="radio" name="hairStyle" value="straight"> Straight</label>
-                    <label><input type="radio" name="hairStyle" value="braided"> Braided</label>
-                    <!-- Add more hair colors if needed -->
-                </fieldset>
+                <label for="name">Name:</label>
+                <input type="text" id="culture" name="name" placeholder="Enter their name">
+                <br>
         
-                <!-- Skin Tone Section -->
-                <fieldset>
-                    <legend>Skin Tone</legend>
-                    <label><input type="radio" name="skinTone" value="light"> Light</label>
-                    <label><input type="radio" name="skinTone" value="medium"> Medium</label>
-                    <label><input type="radio" name="skinTone" value="dark"> Dark</label>
-                    <!-- Add more skin tones if needed -->
-                </fieldset>
-                
-                <label for="culture">Culture or Nationality:</label>
-                <input type="text" id="culture" name="culture" placeholder="Enter a culture or nationality">
+                <label for="culture">Nationality:</label>
+                <input type="text" id="culture" name="culture" placeholder="Enter their nationality">
                 <br>
-                <!-- Location Input -->
-                <label for="location">Location:</label>
-                <input type="text" id="location" name="location" placeholder="Enter a location">
-                <br>
+
                 <label for="occupation">Occupation:</label>
-                <input type="text" id="occupation" name="occupation" placeholder="Enter an occupation">
+                <input type="text" id="occupation" name="occupation" placeholder="Enter their occupation">
                 <br>
-                <!-- Date or Description Input -->
-                <label for="dateOrDescription">Date or Description of Time Period:</label>
-                <input type="text" id="dateOrDescription" name="dateOrDescription" placeholder="Enter a date or description">
-        
-                <!-- Submit Button -->
-<!--                 <button type="submit">Submit</button> -->
+
+                <label for="dateOrDescription">Year of Photograph:</label>
+                <input type="text" id="dateOrDescription" name="dateOrDescription" placeholder="Enter a year">
+                <br>
+
+<!--                 <label for="age">Age:</label>
+                <input type="number" id="age" name="age" placeholder="Enter an age">
+                <br> -->
+
+                <div>
+                    <fieldset>
+                         <legend>Upload an image of yourself! </legend>
+                        <input type="file" id="imageUpload" name="image" accept="image/*">
+                    </fieldset>
+                </div>
+
+                <button id="submit">Generate Visualization</button>
             </form>
-            <div>
-                <label>Extra Info to Include:</label>
-                <textarea id="input_text" rows="5" cols="47"></textarea>
-            </div>
-            <div>
-                <fieldset>
-                    <legend>Upload Image</legend>
-                    <input type="file" id="imageUpload" name="image" accept="image/*">
-                </fieldset>
-            </div>
-            <!-- Transform Controls -->
-<!--             <div id="transformMode">
-                <label for="intensitySlider">Faithfulness to Source Image: </label>
-                <input type="range" id="intensitySlider" name="intensityLevel" min="0" max="1" step="0.01" value="0.3"> -->
-            <button id="submit">Transform Image</button>
-<!--         </div> -->
         </div>
         <!-- Right Section - Result Area -->
-        <div class="right-section" id="right-section" hidden>
-            <h1 id="mainHeader">Resulting Images</h1>
-            <div class="result-images grid-container">
-                <!-- Placeholder Images -->
-                <img id="result-image-1" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
-                <img id="result-image-2" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
-                <img id="result-image-3" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
-                <img id="result-image-4" src="https://upload.wikimedia.org/wikipedia/en/5/5a/Black_question_mark.png" alt="Transformed Image">
-            </div>
-            <div id="prompt-info" hidden>
-                <h4>Prompt:</h4>
-                <text id="prompt-result">Test Text</h5>
-            </div>
-        </div>
+        <div class="right-section" id="right-section">
+                    <h1 id="mainHeader">Your Ancestor Might Have Looked Like...</h1>
+                    <div class="result-images grid-container">
+                        <!-- Placeholder Images -->
+                        <img id="result-image-1" src="../static/question_mark.png" alt="Transformed Image">
+                        <img id="result-image-2" src="../static/question_mark.png" alt="Transformed Image">
+                        <img id="result-image-3" src="../static/question_mark.png" alt="Transformed Image">
+                        <img id="result-image-4" src="../static/question_mark.png" alt="Transformed Image">
+                    </div>
+                </div>
     </div>
 
-    <script>
+<script>
+    $('#submit').click(function(event) {
+        event.preventDefault(); // Prevent default form submission
 
-        $('#submit').click(function() {
-            // Disable the submit button to prevent multiple submissions
-            let button = $('#submit');
-            button.prop('disabled', true);
-            button.css('backgroundColor', '#cccccc');
-        
-            // Gather form data
-            const intensityLevel = $("#intensitySlider").val();
-            const inputTextValue = $("#input_text").val();
-            const genderValue = $('input[name="gender"]:checked').val();
-            const eyeColorValue = $('input[name="eyeColor"]:checked').val();
-            const hairColorValue = $('input[name="hairColor"]:checked').val();
-            const hairStyleValue = $('input[name="hairStyle"]:checked').val();
-            const skinToneValue = $('input[name="skinTone"]:checked').val();
-            const cultureValue = $('#culture').val();
-            const locationValue = $('#location').val();
-            const occupationValue = $('#occupation').val();
-            const dateOrDescriptionValue = $('#dateOrDescription').val();
-        
-            // Handle image upload
-            const imageFile = document.getElementById('imageUpload').files[0];
-            if (imageFile) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const imageBase64 = e.target.result;
-        
-                    // AJAX request with image and form data
-                    $.ajax({
-                        type: 'POST',
-                        url: '/transform',
-                        contentType: 'application/json',
-                        data: JSON.stringify({
-                            inputText: inputTextValue,
-                            gender: genderValue,
-                            eyeColor: eyeColorValue,
-                            hairColor: hairColorValue,
-                            hairStyle: hairStyleValue,
-                            skinTone: skinToneValue,
-                            culture: cultureValue,
-                            location: locationValue,
-                            occupation: occupationValue,
-                            dateOrDescription: dateOrDescriptionValue,
-                            image: imageBase64
-                        }),
-                        success: function(response) {
-                            // Success handler
-                            console.log('Received Response');
-                            console.log(response);
-                            for (let key in response.result_images) {
-                                const imgStr = 'data:image/png;base64,' + response.result_images[key];
-                                const idx = key.split('_')[2];
-                                $(`#result-image-${idx}`).attr("src", imgStr).show();
-                            }
-                            $(`#right-section`).show();
-                            $(`#prompt-info`).show();
-                            $(`#prompt-result`).text(response.prompt);
-                        },
-                        error: function(error) {
-                            // Error handler
-                            console.log(error);
-                        },
-                        complete: function() {
-                            // Re-enable the submit button
-                            button.prop('disabled', false);
-                            button.css('backgroundColor', '');
+        // Disable the submit button to prevent multiple submissions
+        let button = $('#submit');
+        button.prop('disabled', true);
+        button.css('backgroundColor', '#cccccc');
+    
+        // Gather form data
+        const nameValue = $('#name').val();
+        const cultureValue = $('#culture').val();
+        const occupationValue = $('#occupation').val();
+        const dateOrDescriptionValue = $('#dateOrDescription').val();
+        const ageValue = 65;
+    
+        // Handle image upload
+        const imageFile = document.getElementById('imageUpload').files[0];
+        if (imageFile) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const imageBase64 = e.target.result;
+    
+                // AJAX request with image and form data
+                $.ajax({
+                    type: 'POST',
+                    url: '/transform',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        name: nameValue,
+                        culture: cultureValue,
+                        occupation: occupationValue,
+                        dateOrDescription: dateOrDescriptionValue,
+                        age: ageValue,
+                        image: imageBase64
+                    }),
+                    success: function(response) {
+                        // Success handler
+                        console.log('Received Response');
+                        console.log(response);
+                        for (let key in response.result_images) {
+                            const imgStr = response.result_images[key];
+                            const idx = key.split('_')[2];
+                            $(`#result-image-${idx}`).attr("src", imgStr).show();
                         }
-                    });
-                };
-                reader.readAsDataURL(imageFile);
-            } else {
-                // No image selected
-                alert("Please upload an image.");
-                button.prop('disabled', false);
-                button.css('backgroundColor', '');
-            }
-        });
-        
+                        $(`#right-section`).show();
+                        $(`#prompt-info`).show();
+                        $(`#prompt-result`).text(response.prompt);
+                    },
+                    error: function(error) {
+                        // Error handler
+                        console.log(error);
+                    },
+                    complete: function() {
+                        // Re-enable the submit button
+                        button.prop('disabled', false);
+                        button.css('backgroundColor', '');
+                    }
+                });
+            };
+            reader.readAsDataURL(imageFile);
+        } else {
+            // No image selected
+            alert("Please upload an image.");
+            button.prop('disabled', false);
+            button.css('backgroundColor', '');
+        }
+    });
 
-        
-        $('#resetForm').click(function() {
-            // Reset the form using jQuery's .reset() method on the form DOM element
-            $('form')[0].reset();
+    $('#resetForm').click(function() {
+        // Reset the form using jQuery's .reset() method on the form DOM element
+        $('form')[0].reset();
 
-            // For any additional logic, like hiding images or resetting custom form elements, add here.
-            // For example: if you want to hide all result images when the form is reset:
-            $(`#right-section`).hide()
-            $('[id^=result-image-]').hide();
-            $(`#prompt-info`).hide();
-        });
-        
-//         $('#altsubmit').click(function(){
-//             event.preventDefault();  // This prevents the form from submitting the traditional way
-            
-//             // Accessing radio button values
-//             const genderValue = document.querySelector('input[name="gender"]:checked').value;
-//             const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
-//             const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
-//             const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
-        
-//             // Accessing text box values
-//             const locationValue = document.getElementById('location').value;
-//             const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
-        
-//             console.log('Gender:', genderValue);
-//             console.log('Eye Color:', eyeColorValue);
-//             console.log('Hair Color:', hairColorValue);
-//             console.log('Skin Tone:', skinToneValue);
-//             console.log('Location:', locationValue);
-//             console.log('Date/Description:', dateOrDescriptionValue);
-//         });
-        
-        
-//         function handleFormSubmit(event) {
-//             event.preventDefault();  // This prevents the form from submitting the traditional way
-            
-//             // Accessing radio button values
-//             const genderValue = document.querySelector('input[name="gender"]:checked').value;
-//             const eyeColorValue = document.querySelector('input[name="eyeColor"]:checked').value;
-//             const hairColorValue = document.querySelector('input[name="hairColor"]:checked').value;
-//             const skinToneValue = document.querySelector('input[name="skinTone"]:checked').value;
-        
-//             // Accessing text box values
-//             const locationValue = document.getElementById('location').value;
-//             const dateOrDescriptionValue = document.getElementById('dateOrDescription').value;
-        
-//             console.log('Gender:', genderValue);
-//             console.log('Eye Color:', eyeColorValue);
-//             console.log('Hair Color:', hairColorValue);
-//             console.log('Skin Tone:', skinToneValue);
-//             console.log('Location:', locationValue);
-//             console.log('Date/Description:', dateOrDescriptionValue);
-        
-//             // TODO: Process the form data as needed
-//         }
-        
-//         // Add event listener for form submission
-//         document.querySelector('form').addEventListener('submit', handleFormSubmit);
-    </script>
+        $(`#right-section`).hide()
+        $('[id^=result-image-]').hide();
+        $(`#prompt-info`).hide();
+    });
+</script>
+    
 </body>
 
 </html>
