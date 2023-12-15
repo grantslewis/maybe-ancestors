@@ -1,7 +1,5 @@
 # Maybe Ancestors
 
-# Maybe Ancestors
-
 ## Overview
 
 "Maybe Ancestors" is a fascinating web application that invites users to explore what their ancestors might have looked like, based on historical and personal data inputs. This project utilizes advanced machine learning techniques to generate potential ancestral portraits, offering a unique blend of history, genealogy, and AI-driven art.
