@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <title>Ancerator</title>
+    <title>Maybe Ancestors</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
         body {
@@ -27,7 +27,7 @@
         }
 
         .left-section {
-            text-align: left; /* Adjust text alignment */
+            text-align: center; /* Adjust text alignment */
             max-width: 400px; /* Set a maximum width */
             margin: 0 auto; /* Center the section */
         }
@@ -45,6 +45,22 @@
         .grid-container img {
             max-width: 100%;
             height: auto;
+        }
+    
+        .mainHeader {
+            text-align: center;
+            margin-bottom: 0px;
+        }
+
+        .mainHeader h1 {
+            margin: 0;
+            padding: 0px;
+        }
+
+        .mainHeader p {
+            margin: 0;
+            padding: 0px;
+            font-style: italic;
         }
 
         form label, form input, form button, form fieldset {
@@ -75,15 +91,24 @@
             max-width: 400px; /* Set a maximum width for right section */
             margin: 0 auto; /* Center the section */
         }
+    
+        .left-section {
+                max-width: 400px; /* Set a maximum width for right section */
+                margin: 0 auto; /* Center the section */
+            }
     </style>
 </head>
 
 <body>
     <!-- Main Container -->
+            <div class="mainHeader">
+            <h1>Maybe Ancestors</h1>
+            <p>Explore what your ancestors might have looked like... maybe.</p>
+        </div>
     <div class="main-container">
         <!-- Left Section - Drawing Area -->
-        <div class="left-section">
-            <h1 id="mainHeader"> Let's Learn A Bit About Your Ancestor...</h1>
+        <div class="left-section" id="left-section">
+            <h1 id="header"> Let's Learn A Bit About Your Ancestor...</h1>
             <input type="button" id="resetForm" value="Reset Input Information">
             <form action=""> <!-- Adjust the action to your desired endpoint -->
                 
@@ -119,7 +144,7 @@
         </div>
         <!-- Right Section - Result Area -->
         <div class="right-section" id="right-section">
-                    <h1 id="mainHeader">Your Ancestor Might Have Looked Like...</h1>
+                    <h1 id="header">Your Ancestor Might Have Looked Like...</h1>
                     <div class="result-images grid-container">
                         <!-- Placeholder Images -->
                         <img id="result-image-1" src="../static/question_mark.png" alt="Transformed Image">
